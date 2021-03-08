@@ -7,6 +7,10 @@ public class Main {
         File lecturesFile = promptFile();
     }
 
+    /**
+     * Prompts the user for a file and will loop until a valid filename is inetered
+     * @return File object from the filename the user entered
+     */
     public static File promptFile() {
         Scanner in = new Scanner(System.in);
         System.out.println("Enter a filename for input file.");
