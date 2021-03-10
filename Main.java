@@ -5,16 +5,31 @@ import java.util.Scanner;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Objects;
+import java.util.PriorityQueue;
 
 public class Main { 
     public static void main(String[] args) 
     { 
         File lecturesFile = promptFile();
+        ArrayList<Lecture> lectures;
+        PriorityQueue<Classroom> classroomQueue = new PriorityQueue<Classroom>();
         try {
-            parseFile(lecturesFile);
+            lectures = parseFile(lecturesFile);
+            runIntervalPartitioning(classroomQueue, lectures);
+
         } catch (Exception e) {
             System.out.println(e);
-        }
+        }        
+    }
+
+    /**
+     * Run the interval paritioning algorithm on the ArrayList of lectures and create Classroom objects to contain them. 
+     * Adds these Classroom objects to the priority queue
+     * @param classroomQueue
+     * @param lectures
+     */
+    public static void runIntervalPartitioning(PriorityQueue<Classroom> classroomQueue, ArrayList<Lecture> lectures) {
+
     }
 
     /**
@@ -36,18 +51,23 @@ public class Main {
         return lecturesFile;
     }
 
-    public static void parseFile(File lecturesFile) throws Exception {
+    /**
+     * Parses the input file and outputs an arraylist of all the Lecture objects created from the file
+     * @param lecturesFile file containing list of lectures in format (name, startTime, endTime)
+     * @return ArrayList of Lecture objects
+     * @throws Exception if lecturesFile does not excist (already checked in promptFile)
+     */
+    public static ArrayList<Lecture> parseFile(File lecturesFile) throws Exception {
         BufferedReader br = new BufferedReader(new FileReader(lecturesFile)); 
-        Classroom newClass = new Classroom("Classroom 1");
-        
+        ArrayList<Lecture> outLecs = new ArrayList<Lecture>();
         String line; 
         while ((line = br.readLine()) != null)  {
             Lecture lec = new Lecture(line);
-            newClass.addLecture(lec);
+            outLecs.add(lec);
             System.out.println("Adding lecture: " + lec.toString());
         } 
-        System.out.println(newClass.toString());
         br.close();
+        return outLecs;
     }
 
 }
@@ -55,32 +75,64 @@ public class Main {
 /**
  * Class representing a classroom
  */
-class Classroom {
+class Classroom implements Comparable<Classroom>{
     int lastFin;
     ArrayList<Lecture> lecs;
     String classroomName;
 
+    /**
+     * Classroom constructor; just name, default lastFin to -1 and empty lectures arraylist
+     * @param classroomName name of the classroom
+     */
     public Classroom(String classroomName) {
         this.classroomName = classroomName;
         this.lastFin = -1;
         this.lecs = new ArrayList<Lecture>(); 
     }
 
+    /**
+     * Classroom constructor; name and lastFin (this is mainly for testing pqueue)
+     * @param classroomName name of the classroom
+     * @param lastFin starting value for lastFin
+     */
+    public Classroom(String classroomName, int lastFin) {
+        this.classroomName = classroomName;
+        this.lastFin = lastFin;
+        this.lecs = new ArrayList<Lecture>(); 
+    }
+
+    /**
+     * Classroom constructor; name and list of lectures, lastFin will be calculated from lecture list
+     * @param classroomName name of the classroom
+     * @param lecs ArrayList of lectures to add to the classroom
+     */
     public Classroom(String classroomName, ArrayList<Lecture> lecs) {
         this.classroomName = classroomName;
         this.lecs = lecs;   
-        this.lastFin = -1;
+        this.lastFin = calculateLastFin();
     }
 
+    /**
+     * Calculate the current last finish time from the local arraylist of lectures
+     * @return
+     */
     int calculateLastFin() {
         return -1;
     }
 
+    /**
+     * Add a new lecture to the arraylist of Lectures for the classroom and update the last finish time
+     * @param lec Lecture to add
+     */
     void addLecture(Lecture lec) {
         lecs.add(lec);
         this.lastFin = calculateLastFin();
     }    
 
+    /**
+     * Print all lectures in the classroom
+     * @return string with all lectures listed
+     */
     String printLectures() {
         String lectures = "";
         for(Lecture lec : this.lecs ){
@@ -88,6 +140,8 @@ class Classroom {
         }
         return lectures;
     }
+
+    // Getters and setters
 
     public int getLastFin() {
         return this.lastFin;
@@ -106,7 +160,15 @@ class Classroom {
         return getClassroomName() + ": " + printLectures();
     }
 
-
+    /**
+     * Implementation of compareTo method to all for usuage in a Java priority queue
+     * @param oClassroom other Classroom to compare to
+     * @return difference between this Classroom's and another Classroom's lastFin value
+     */
+    @Override
+    public int compareTo(Classroom oClassroom) {
+        return this.getLastFin() - oClassroom.getLastFin();
+    }
 }
 
 /** 
