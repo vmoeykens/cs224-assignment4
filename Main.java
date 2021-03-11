@@ -5,16 +5,19 @@ import java.util.Scanner;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Objects;
 import java.util.PriorityQueue;
 
 public class Main { 
     public static void main(String[] args) 
     { 
+        // Create a new file object from the prompt. NOTE: We only check to see if the file exists, not if its a .txt or not
         File lecturesFile = promptFile();
+        // Create an arraylist to hold the lectures
         ArrayList<Lecture> lectures;
+        // Create a priority queue for the classrooms
         PriorityQueue<Classroom> classroomQueue = new PriorityQueue<Classroom>();
         try {
+            // Try and parse the file and run the algorithm
             lectures = parseFile(lecturesFile);
             runIntervalPartitioning(classroomQueue, lectures);
 
@@ -45,11 +48,14 @@ public class Main {
         classCounter++;
         for (int i = 1; i < lectures.size(); i++) {
             if (lectures.get(i).getStartTime() >= classroomQueue.peek().getLastFin()) {
+                // The current lecture is compatible with the first classroom in the priority queue, add it
                 classroomQueue.peek().addLecture(lectures.get(i));
                 System.out.println(classroomQueue.peek().getClassroomName() + ": " + lectures.get(i));
             } else {
+                // We need a new classroom, create one and add the lecture to it
                 Classroom newClass = new Classroom("Classroom " + classCounter, lectures.get(i).getEndTime());
                 newClass.addLecture(lectures.get(i));
+                // Add the new classroom to the priority queue
                 classroomQueue.add(newClass);
                 System.out.println(newClass.getClassroomName() + ": " + lectures.get(i));
                 classCounter++;
@@ -139,14 +145,6 @@ class Classroom implements Comparable<Classroom>{
     public Classroom(String classroomName, ArrayList<Lecture> lecs) {
         this.classroomName = classroomName;
         this.lecs = lecs;   
-    }
-
-    /**
-     * Calculate the current last finish time from the local arraylist of lectures
-     * @return
-     */
-    int calculateLastFin() {
-        return -1;
     }
 
     /**
@@ -264,17 +262,6 @@ class Lecture implements Comparable<Lecture>{
             getStartTime() + ", " +
             getEndTime() +
             ")";
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (o == this)
-            return true;
-        if (!(o instanceof Lecture)) {
-            return false;
-        }
-        Lecture lecture = (Lecture) o;
-        return Objects.equals(lectureName, lecture.lectureName) && startTime == lecture.startTime && endTime == lecture.endTime;
     }
 
     /**
