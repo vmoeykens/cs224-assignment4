@@ -4,6 +4,7 @@ import java.io.FileReader;
 import java.util.Scanner;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Objects;
 import java.util.PriorityQueue;
 
@@ -29,7 +30,36 @@ public class Main {
      * @param lectures
      */
     public static void runIntervalPartitioning(PriorityQueue<Classroom> classroomQueue, ArrayList<Lecture> lectures) {
-
+        // Sort lectures by start time
+        Collections.sort(lectures);
+        // Set up counters for total number of classrooms
+        int classCounter = 1;
+        // Add an initial classroom with the lastFin time as the finish time of the first lecture
+        Classroom class1 = new Classroom("Classroom " + classCounter, lectures.get(0).getEndTime());
+        // Add the first lecture in the list 
+        class1.addLecture(lectures.get(0));
+        // Add the classroom object to the pqueue
+        classroomQueue.add(class1);
+        System.out.println(class1);
+        // Increment the class counter
+        classCounter++;
+        for (int i = 1; i < lectures.size(); i++) {
+            if (lectures.get(i).getStartTime() >= classroomQueue.peek().getLastFin()) {
+                classroomQueue.peek().addLecture(lectures.get(i));
+                System.out.println(classroomQueue.peek().getClassroomName() + ": " + lectures.get(i));
+            } else {
+                Classroom newClass = new Classroom("Classroom " + classCounter, lectures.get(i).getEndTime());
+                newClass.addLecture(lectures.get(i));
+                classroomQueue.add(newClass);
+                System.out.println(newClass.getClassroomName() + ": " + lectures.get(i));
+                classCounter++;
+            }
+        }
+        // Print out all classrooms
+        System.out.println("\nAll classrooms and associated lectures: ");
+        while (classroomQueue.peek() != null) {
+            System.out.println(classroomQueue.poll());
+        }
     }
 
     /**
@@ -64,7 +94,7 @@ public class Main {
         while ((line = br.readLine()) != null)  {
             Lecture lec = new Lecture(line);
             outLecs.add(lec);
-            System.out.println("Adding lecture: " + lec.toString());
+            //System.out.println("Adding lecture: " + lec.toString());
         } 
         br.close();
         return outLecs;
@@ -109,7 +139,6 @@ class Classroom implements Comparable<Classroom>{
     public Classroom(String classroomName, ArrayList<Lecture> lecs) {
         this.classroomName = classroomName;
         this.lecs = lecs;   
-        this.lastFin = calculateLastFin();
     }
 
     /**
@@ -126,7 +155,6 @@ class Classroom implements Comparable<Classroom>{
      */
     void addLecture(Lecture lec) {
         lecs.add(lec);
-        this.lastFin = calculateLastFin();
     }    
 
     /**
@@ -174,7 +202,7 @@ class Classroom implements Comparable<Classroom>{
 /** 
  * Class representing a lecture
  */
-class Lecture {
+class Lecture implements Comparable<Lecture>{
     String lectureName;
     int startTime;
     int endTime;
@@ -247,5 +275,15 @@ class Lecture {
         }
         Lecture lecture = (Lecture) o;
         return Objects.equals(lectureName, lecture.lectureName) && startTime == lecture.startTime && endTime == lecture.endTime;
+    }
+
+    /**
+     * Implementation of compareTo method
+     * @param oLecture other Lecture to compare to
+     * @return difference between this Lecture and another lecture's starting time
+     */
+    @Override
+    public int compareTo(Lecture oLecture) {
+        return this.getStartTime() - oLecture.getStartTime();
     }
 }
