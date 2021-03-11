@@ -78,12 +78,12 @@ public class Main {
      */
     public static File promptFile() {
         Scanner in = new Scanner(System.in);
-        System.out.println("Enter a filename for input file.");
+        System.out.print("Enter a filename for input file: ");
         String fileName = in.nextLine();
         File lecturesFile = new File(fileName);
         
         while(!lecturesFile.exists()){
-            System.out.println("Invalid file name! Try again.");
+            System.out.print("Invalid file name! Try again: ");
             fileName = in.nextLine();    
             lecturesFile = new File(fileName);
         }
@@ -190,7 +190,7 @@ class Classroom implements Comparable<Classroom>{
 
     @Override
     public String toString() {
-        return getClassroomName() + "(" + getLastFin() + ")" + ": " + printLectures();
+        return getClassroomName() + ": " + printLectures();
     }
 
     /**
