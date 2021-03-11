@@ -104,7 +104,6 @@ public class Main {
         while ((line = br.readLine()) != null)  {
             Lecture lec = new Lecture(line);
             outLecs.add(lec);
-            //System.out.println("Adding lecture: " + lec.toString());
         } 
         br.close();
         return outLecs;
