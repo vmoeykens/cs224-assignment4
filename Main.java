@@ -47,16 +47,20 @@ public class Main {
         // Increment the class counter
         classCounter++;
         for (int i = 1; i < lectures.size(); i++) {
-            if (lectures.get(i).getStartTime() >= classroomQueue.peek().getLastFin()) {
+            Classroom smallestFinish = classroomQueue.poll();
+            if (lectures.get(i).getStartTime() >= smallestFinish.getLastFin()) {
                 // The current lecture is compatible with the first classroom in the priority queue, add it
-                classroomQueue.peek().addLecture(lectures.get(i));
-                System.out.println(classroomQueue.peek().getClassroomName() + ": " + lectures.get(i));
+                smallestFinish.addLecture(lectures.get(i));
+                smallestFinish.setLastFin(lectures.get(i).getEndTime());
+                System.out.println(smallestFinish.getClassroomName() + ": " + lectures.get(i));
+                classroomQueue.add(smallestFinish);
             } else {
                 // We need a new classroom, create one and add the lecture to it
                 Classroom newClass = new Classroom("Classroom " + classCounter, lectures.get(i).getEndTime());
                 newClass.addLecture(lectures.get(i));
                 // Add the new classroom to the priority queue
                 classroomQueue.add(newClass);
+                classroomQueue.add(smallestFinish);
                 System.out.println(newClass.getClassroomName() + ": " + lectures.get(i));
                 classCounter++;
             }
@@ -181,9 +185,13 @@ class Classroom implements Comparable<Classroom>{
         return this.classroomName;
     }
 
+    public void setLastFin(int lastFin) {
+        this.lastFin = lastFin;
+    }
+
     @Override
     public String toString() {
-        return getClassroomName() + ": " + printLectures();
+        return getClassroomName() + "(" + getLastFin() + ")" + ": " + printLectures();
     }
 
     /**
